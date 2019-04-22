@@ -23,6 +23,11 @@
 
 
 
+#ifndef __APPLE__ // For consistent behavior across platforms
+#define ARG_MAX            (256 * 1024)
+#endif
+
+
 #define	INVALID		1
 #define	TOOSMALL	2
 #define	TOOLARGE	3
