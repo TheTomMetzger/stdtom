@@ -1,3 +1,4 @@
+> Some includes are missing - update with fixes and new features coming soon
 # stdtom
 A collection of useful functions, some with common use cases, but many have especially obscure use cases.
 
