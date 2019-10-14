@@ -118,13 +118,13 @@ namespace tom
 	 Warning: this is not a thread safe function
 	 */
 	string path_from_handle(void* handle);
-	const char* path_from_handle(void* handle);
+	const char* path_from_handle_cstr(void* handle);
 	
 	
 	
 	// retruns the path to the executable that calls it
 	string path_to_current_executable(void);
-	const char* path_to_current_executable();
+	const char* path_to_current_executable_cstr();
 #endif
 	
 	

@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <dlfcn.h>
+#include <sys/stat.h>
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
 #endif
@@ -360,7 +361,7 @@ namespace tom
 			
 			rewind(file_handle);
 			
-			contents = (char *)malloc(length);
+			contents = (char*) malloc(length);
 			
 			if (contents != NULL)
 			{
@@ -406,7 +407,7 @@ namespace tom
 			
 			rewind(file_handle);
 			
-			contents = malloc(length);
+			contents = (char*) malloc(length);
 			
 			if (contents != NULL)
 			{
@@ -568,7 +569,7 @@ namespace tom
 	
 	
 	
-	const char* path_from_handle(void* handle)
+	const char* path_from_handle_cstr(void* handle)
 	{
 		// Since we know the image we want will always be near the end of the list, start there and go backwards
 		for (uint32_t i = (_dyld_image_count() - 1); i >= 0; i--)
@@ -615,7 +616,7 @@ namespace tom
 	
 	
 	
-	const char* path_to_current_executable()
+	const char* path_to_current_executable_cstr()
 	{
 		Dl_info info;
 		
@@ -749,7 +750,7 @@ namespace tom
 	// basically just printf with a prefix & newline - 'l' for 'log'
 	void lprintf(const char* format, ...)
 	{
-		char* wrappedString = (char *)malloc(strlen(lprefix.c_str()) + strlen(format) + strlen("\n") + 1);
+		char* wrappedString = (char*) malloc(strlen(lprefix.c_str()) + strlen(format) + strlen("\n") + 1);
 		
 		
 		// Wrap it between prefix and newline
