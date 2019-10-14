@@ -31,7 +31,8 @@ More languages may be added, but only as needed by me.
 | `set_lprefix` | Sets the prefix used by the print/log function. | YES |
 | `lprintf` | Prints to the console, with a user-define prefix added first. | YES |
 | `setLogPrefix` | Sets the prefix used by the print/log function. | NO - Apple Exclusive |
-| `TMLog` | Prints to the console, with a user-define prefix added first. | NO - Apple Exclusive
+| `TMLog` | Prints to the console, with a user-define prefix added first. | NO - Apple Exclusive |
+| `va_haxx` / `pass_array_contents_to_variadic_function` | Passes all elements of an array as individual arguments to a variadic function | YES - x86_64 Exclusive (for now!) | 
 
 Overloads for all possible string types are provided as reasonable. If there's not an overload, then it's likely because there's some support for the operation to that type already.
 
