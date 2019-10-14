@@ -801,7 +801,7 @@ namespace tom
 	{
 		/* TODO: Get rid of this part */
 		// some nonesence to keep size from being overwritten
-		int *local_size = malloc(sizeof(int));
+		int *local_size = (int*) malloc(sizeof(int));
 		memcpy(local_size, &array_size, sizeof(int));
 		free(local_size);
 		
