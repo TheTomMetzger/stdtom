@@ -126,4 +126,12 @@ void lprintf(const char* format, ...);
 void printclr(void);
 
 
+#if defined(__x86_64__)
+// pass the contents of an array to a variadic function as invidual parameters [i.e. func(arr[0], arr[1], ...and so on)]
+// why not manually pass them as needed? If the array isn't always the same size, there's no way to hardcode it to pass each element as a parameter to the function
+#define va_haxx pass_array_contents_to_variadic_function
+void pass_array_contents_to_variadic_function(long long function, int array_size, void* array, unsigned long array_type_size);
+#endif
+
+
 #endif /* stdtom_h */

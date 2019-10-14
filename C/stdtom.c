@@ -30,6 +30,7 @@
 #include <mach-o/dyld.h>
 #endif
 #include <sys/ioctl.h>
+#include <signal.h>
 
 
 
@@ -482,3 +483,157 @@ void printclr()
 		printf("\033[H\033[J");
 	}
 }
+
+
+
+
+#if defined(__x86_64__)
+void pass_array_contents_to_variadic_function(long long function, int array_size, void* array, unsigned long array_type_size)
+{
+	/* TODO: Get rid of this part */
+	// some nonesence to keep size from being overwritten
+	int *local_size = malloc(sizeof(int));
+	memcpy(local_size, &array_size, sizeof(int));
+	free(local_size);
+	
+	
+	__asm__ __volatile__ ("push %%rax\n\t"
+						  "push %%rdx\n\t"
+						  "push %%rcx\n\t"
+						  : : :);
+	
+	// all to stack first to minimize chance of clang overwriting registers later
+	switch (array_type_size)
+	{
+		case sizeof(BYTE):
+		{
+			for (int i = (array_size - 1); i > -1; i--)
+			{
+				__asm__ __volatile__ ("nop" : : : );
+				__asm__ __volatile__ ("nop" : : : );
+				__asm__ __volatile__ ("mov %0, %%r13" : : "m"(((BYTE*)array)[i]) :);
+				__asm__ __volatile__ ("push %%r13\n\t" : : : );
+				__asm__ __volatile__ ("nop" : : : );
+				__asm__ __volatile__ ("nop" : : : );
+			}
+			break;
+		}
+			
+		case sizeof(WORD):
+		{
+			// this has had the least testing - you can probably trust it, but be skeptical
+			for (int i = (array_size - 1); i > -1; i--)
+			{
+				__asm__ __volatile__ ("nop" : : : );
+				__asm__ __volatile__ ("nop" : : : );
+				__asm__ __volatile__ ("mov %0, %%r13" : : "m"(((WORD*)array)[i]) :);
+				__asm__ __volatile__ ("push %%r13\n\t" : : : );
+				__asm__ __volatile__ ("nop" : : : );
+				__asm__ __volatile__ ("nop" : : : );
+			}
+			break;
+		}
+			
+		case sizeof(DWORD):
+		{
+			for (int i = (array_size - 1); i > -1; i--)
+			{
+				__asm__ __volatile__ ("nop" : : : );
+				__asm__ __volatile__ ("nop" : : : );
+				__asm__ __volatile__ ("movq %0, %%r13" : : "m"(((DWORD*)array)[i]) :);
+				__asm__ __volatile__ ("pushq %%r13\n\t" : : : );
+				__asm__ __volatile__ ("nop" : : : );
+				__asm__ __volatile__ ("nop" : : : );
+			}
+			break;
+		}
+			
+		case sizeof(QWORD):
+		{
+			for (int i = (array_size - 1); i > -1; i--)
+			{
+				__asm__ __volatile__ ("nop" : : : );
+				__asm__ __volatile__ ("nop" : : : );
+				__asm__ __volatile__ ("push %0\n\t" : : "r"(((QWORD*)array)[i]) : );
+				__asm__ __volatile__ ("nop" : : : );
+				__asm__ __volatile__ ("nop" : : : );
+			}
+			break;
+		}
+			
+		default:
+		{
+			__asm__ __volatile__ ("pop %%rcx\n\t"
+								  "pop %%rdx\n\t"
+								  "pop %%rax\n\t"
+								  : : :);
+			printf("VA_HAXX: Object size larger than supported\n");
+			// TODO: Do one or the other based on debugger?
+			//			__asm__("int $3");
+			raise(SIGABRT);
+			break;
+		}
+	}
+	
+	
+	// loops are bad for registers, switch doesn't handle greater than case well (it would be default, but what if size is less than? etc)
+	if (array_size == 1)
+	{
+		__asm__ __volatile__ ("popq %%rdi\n\t" : : : );
+	}
+	else if (array_size == 2)
+	{
+		__asm__ __volatile__ ("popq %%rdi\n\t" : : : );
+		__asm__ __volatile__ ("popq %%rsi\n\t" : : : );
+	}
+	else if (array_size == 3)
+	{
+		__asm__ __volatile__ ("pop %%rdi\n\t" : : : );
+		__asm__ __volatile__ ("pop %%rsi\n\t" : : : );
+		__asm__ __volatile__ ("pop %%rdx\n\t" : : : );
+	}
+	else if (array_size == 4)
+	{
+		__asm__ __volatile__ ("pop %%rdi\n\t" : : : );
+		__asm__ __volatile__ ("pop %%rsi\n\t" : : : );
+		__asm__ __volatile__ ("pop %%rdx\n\t" : : : );
+		__asm__ __volatile__ ("pop %%rcx\n\t" : : : );
+	}
+	else if (array_size == 5)
+	{
+		__asm__ __volatile__ ("pop %%rdi\n\t" : : : );
+		__asm__ __volatile__ ("pop %%rsi\n\t" : : : );
+		__asm__ __volatile__ ("pop %%rdx\n\t" : : : );
+		__asm__ __volatile__ ("pop %%rcx\n\t" : : : );
+		__asm__ __volatile__ ("pop %%r8\n\t" : : : );
+	}
+	else if (array_size >= 6)
+	{
+		__asm__ __volatile__ ("pop %%rdi\n\t" : : : );
+		__asm__ __volatile__ ("pop %%rsi\n\t" : : : );
+		__asm__ __volatile__ ("pop %%rdx\n\t" : : : );
+		__asm__ __volatile__ ("pop %%rcx\n\t" : : : );
+		__asm__ __volatile__ ("pop %%r8\n\t" : : : );
+		__asm__ __volatile__ ("pop %%r9\n\t" : : : );
+	}
+	
+	
+	__asm__ __volatile__ ("call *%P0" : :"r"(function) :);
+	
+	
+	for (int i = 0; i < (array_size - 6); i++)
+	{
+		__asm__ __volatile__ ("nop" : : : );
+		__asm__ __volatile__ ("nop" : : : );
+		__asm__ __volatile__ ("pop %%r8" : : :);
+		__asm__ __volatile__ ("nop" : : : );
+		__asm__ __volatile__ ("nop" : : : );
+	}
+	
+	
+	__asm__ __volatile__ ("pop %%rcx\n\t"
+						  "pop %%rdx\n\t"
+						  "pop %%rax\n\t"
+						  : : :);
+}
+#endif
