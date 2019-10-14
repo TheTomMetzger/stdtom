@@ -18,6 +18,7 @@
 #include <dlfcn.h>
 #include <mach-o/dyld.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 
 
 
@@ -324,7 +325,7 @@ bool isdir(char* path)
 
 
 // stolen from: https://techoverflow.net/2013/08/21/a-simple-mmap-readonly-example/
-size_t filesize(NSString *filePath)
+size_t fileSize(NSString *filePath)
 {
 	struct stat st;
 	
@@ -444,29 +445,6 @@ char* path_to_current_executable()
 
 
 
-NSString *getArg(int argc, char* argv[], NSString *argName)
-{
-	for (int i = 0; i < argc; i++)
-	{
-		if (strcmp(argv[i], [argname UTF8String]) == 0)
-		{
-			if ((i + 1) < argc)
-			{
-				string argvalue = argv[i+1];
-				
-				
-				return [NSString stringWithUTF8String:argvalue];
-			}
-		}
-	}
-	
-	
-	return NULL;
-}
-
-
-
-
 NSString *getArg(int argc, char* argv[], char* argname)
 {
 	for (int i = 0; i < argc; i++)
@@ -475,7 +453,7 @@ NSString *getArg(int argc, char* argv[], char* argname)
 		{
 			if ((i + 1) < argc)
 			{
-				string argvalue = argv[i+1];
+				char* argvalue = argv[i+1];
 				
 				
 				return [NSString stringWithUTF8String:argvalue];
@@ -586,7 +564,7 @@ void setLogPrefix(NSString *newPrefix)
 
 
 
-void TMLog(NSString *format)
+void TMLog(NSString *format, ...)
 {
 	// Type to hold information about variable arguments.
 	va_list ap;

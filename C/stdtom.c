@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <dlfcn.h>
+#include <sys/stat.h>
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
 #endif

@@ -14,11 +14,12 @@
  * Since this is Objective-C, the ifdefs have been removed (I know there is some Objective-C for Linux project out there, but I don't know what it does/doesn't support.
  */
 
-#include "stdtom.h"
+#include "stdtom.hh"
 
 #include <dlfcn.h>
 #include <mach-o/dyld.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 
 
 
@@ -258,7 +259,7 @@ char* cstring_with_format(char* format, ...)
 // stolen from https://stackoverflow.com/questions/8465006/how-do-i-concatenate-two-strings-in-c/8465083
 char* cstrapp(const char *s1, const char *s2) //strapp = string append
 {
-    char *result = malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
+    char *result = (char*) malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
     // in real code you would check for errors in malloc here
     // TODO: Check malloc errors
     strcpy(result, s1);
@@ -285,7 +286,7 @@ void cstr_append_char(char* str, char character)
 // trims strings down to their real size. Also removes newline characters.
 char* cstrtrim (char* str)
 {
-    char* trimmed = malloc((sizeof(char) * strlen(str)));
+    char* trimmed = (char*) malloc((sizeof(char) * strlen(str)));
     memcpy(trimmed, str, strlen(str));
 //
 //
@@ -403,7 +404,7 @@ char* cstr_from_file_contents(char* filename)
 		
 		rewind(file_handle);
 		
-		contents = malloc(length);
+		contents = (char*) malloc(length);
 		
 		if (contents != NULL)
 		{
@@ -583,7 +584,7 @@ string path_from_handle(void* handle)
 
 
 
-char* path_from_handle(void* handle)
+char* path_from_handle_cstr(void* handle)
 {
 	// Since we know the image we want will always be near the end of the list, start there and go backwards
 	for (uint32_t i = (_dyld_image_count() - 1); i >= 0; i--)
@@ -650,7 +651,7 @@ string path_to_current_executable()
 
 
 
-char* path_to_current_executable()
+char* path_to_current_executable_cstr()
 {
 	Dl_info info;
 	
@@ -671,52 +672,6 @@ char* path_to_current_executable()
 
 
 
-NSString *getArg(int argc, char* argv[], NSString *argName)
-{
-	for (int i = 0; i < argc; i++)
-	{
-		if (strcmp(argv[i], [argname UTF8String]) == 0)
-		{
-			if ((i + 1) < argc)
-			{
-				string argvalue = argv[i+1];
-				
-				
-				return [NSString stringWithUTF8String:argvalue];
-			}
-		}
-	}
-	
-	
-	return NULL;
-}
-
-
-
-
-NSString *getArg(int argc, char* argv[], string argname)
-{
-	for (int i = 0; i < argc; i++)
-	{
-		if (strcmp(argv[i], argname.c_str()) == 0)
-		{
-			if ((i + 1) < argc)
-			{
-				string argvalue = argv[i+1];
-				
-				
-				return [NSString stringWithUTF8String:argvalue];
-			}
-		}
-	}
-	
-	
-	return NULL;
-}
-
-
-
-
 NSString *getArg(int argc, char* argv[], char* argname)
 {
 	for (int i = 0; i < argc; i++)
@@ -725,7 +680,7 @@ NSString *getArg(int argc, char* argv[], char* argname)
 		{
 			if ((i + 1) < argc)
 			{
-				string argvalue = argv[i+1];
+				char* argvalue = argv[i+1];
 				
 				
 				return [NSString stringWithUTF8String:argvalue];
@@ -735,29 +690,6 @@ NSString *getArg(int argc, char* argv[], char* argname)
 	
 	
 	return NULL;
-}
-
-
-
-
-string getarg(int argc, char* argv[], string argname) //TODO - make enough to match all argv definitions
-{
-	for (int i = 0; i < argc; i++)
-	{
-		if (strcmp(argv[i], argname.c_str()) == 0)
-		{
-			if ((i + 1) < argc)
-			{
-				string argvalue = argv[i+1];
-				
-				
-				return argvalue;
-			}
-		}
-	}
-	
-	
-	return "";
 }
 
 
@@ -806,11 +738,11 @@ char* getarg_cstr(int argc, char* argv[], char* argname) //TODO - make enough to
 
 
 
-bool argIsPresent(int argc, char* argv[], NSString *argName) //TODO - make enough to match all argv definitions
+bool argIsPresent(int argc, char* argv[], NSString *argname) //TODO - make enough to match all argv definitions
 {
 	for (int i = 0; i < argc; i++)
 	{
-		if (strcmp(argv[i], [argName UTF8String]) == 0)
+		if (strcmp(argv[i], [argname UTF8String]) == 0)
 		{
 			return true;
 		}
@@ -870,7 +802,7 @@ void set_lprefix(char* new_prefix)
 // basically just printf with a prefix & newline - 'l' for 'log'
 void lprintf(const char* format, ...)
 {
-	char* wrappedString = malloc(strlen(lprefix) + strlen(format) + strlen("\n") + 1);
+	char* wrappedString = (char*) malloc(strlen(lprefix) + strlen(format) + strlen("\n") + 1);
 	
 	
 	// Wrap it between prefix and newline
@@ -899,7 +831,7 @@ void setLogPrefix(NSString *newPrefix)
 
 
 
-void TMLog(NSString *format)
+void TMLog(NSString *format, ...)
 {
 	// Type to hold information about variable arguments.
 	va_list ap;

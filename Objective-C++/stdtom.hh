@@ -18,9 +18,6 @@
 #define stdtom_h
 
 #import <Foundation/Foundation.h>
-
-
-
 #include <string>
 
 
@@ -52,6 +49,12 @@
 #define WORD   unsigned short int      // 2 Bytes
 #define DWORD  unsigned int            // 4 Bytes
 #define QWORD  unsigned long long int  // 8 Bytes
+
+
+
+
+
+using namespace std;
 
 
 
@@ -114,21 +117,17 @@ size_t filesize(char* file_path);
  */
 NSString *pathFromHandle(void *handle);
 string path_from_handle(void* handle);
-char* path_from_handle(void* handle)
+char* path_from_handle_cstr(void* handle);
 
 
 // retruns the path to the executable that calls it
 NSString *pathToCurrentExecutable(void);
 string path_to_current_executable(void);
-char* path_to_current_executable(void);
+char* path_to_current_executable_cstr(void);
 
 
 // getopt - but actually resonable to use
-// no use overloading argv[], its basically always a c string
-NSString *getArg(int argc, char* argv[], NSString *argName);
-NSString *getArg(int argc, char* argv[], string argname);
 NSString *getArg(int argc, char* argv[], char* argname);
-string getarg(int argc, char* argv[], string argname);
 string getarg(int argc, char* argv[], char* argname);
 char* getarg_cstr(int argc, char* argv[], char* argname);
 

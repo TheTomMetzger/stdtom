@@ -94,7 +94,7 @@ char* path_extension(char* path);
 bool isdir(char* path);
 
 // gets the file size for a file
-size_t filesize(NSString *filePath);
+size_t fileSize(NSString *filePath);
 size_t filesize(char* file_path);
 
 
@@ -103,7 +103,7 @@ size_t filesize(char* file_path);
  	Warning: this is not a thread safe function
  */
 NSString *pathFromHandle(void *handle);
-char* path_from_handle(void* handle)
+char* path_from_handle(void* handle);
 
 
 // retruns the path to the executable that calls it
@@ -112,8 +112,6 @@ char* path_to_current_executable(void);
 
 
 // getopt - but actually resonable to use
-// no use overloading argv[], its basically always a c string
-NSString *getArg(int argc, char* argv[], NSString *argName);
 NSString *getArg(int argc, char* argv[], char* argname);
 char* getarg(int argc, char* argv[], char* argname);
 
